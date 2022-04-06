@@ -1,27 +1,20 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.21)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 PROJECT(pwizmzlib)
 
 SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/dist)
-SET(EXT_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
+SET(EXT_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extlibs")
 SET(PWIZ_DIR ${EXT_LIB_DIR}/pwiz)
 
 
-include(ExternalProject)
-make_directory(${PWIZ_DIR})
-ExternalProject_Add(pwiz_src
-        SOURCE_DIR ${PWIZ_DIR}
-        GIT_REPOSITORY https://github.com/ProteoWizard/pwiz.git
-        GIT_TAG master
-        GIT_SHALLOW 1
-        GIT_PROGRESS 1
-        UPDATE_COMMAND ""
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND tar -xjf libraries/boost_1_76_0.tar.bz2 -C libraries/ &&
-                        tar -xjf libraries/zlib-1.2.3.tar.bz2 -C libraries/
-        BUILD_IN_SOURCE 1
-        INSTALL_COMMAND ""
+configure_file(CMakeLists.txt.in pwiz-src-download/CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pwiz-src-download"
 )
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/pwiz-src-download"
+)
+
 
 INCLUDE_DIRECTORIES("${PWIZ_DIR}"
                     "${PWIZ_DIR}/libraries/boost_1_76_0/"
@@ -78,7 +71,6 @@ SET(SRC_FILES
     pwiz_wrapper.cpp)
 
 ADD_LIBRARY(pwizmzlib ${SRC_FILES} ${EXT_LIB_SRCS})
-add_dependencies(pwizmzlib pwiz_src)
 
 INSTALL(TARGETS pwizmzlib DESTINATION debug CONFIGURATIONS Debug)
 INSTALL(TARGETS pwizmzlib DESTINATION lib CONFIGURATIONS Release)

@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.8)
+project(pwiz-src-download NONE)
+include(ExternalProject)
+ExternalProject_Add(pwiz-src
+                    SOURCE_DIR ${PWIZ_DIR}
+                    GIT_REPOSITORY https://github.com/ProteoWizard/pwiz.git
+                    GIT_TAG master
+                    GIT_SHALLOW 1
+                    GIT_PROGRESS 1
+                    UPDATE_COMMAND tar -xjf libraries/boost_1_76_0.tar.bz2 -C libraries/
+                    COMMAND        tar -xjf libraries/zlib-1.2.3.tar.bz2 -C libraries/
+                    CONFIGURE_COMMAND ""
+                    BUILD_COMMAND ""
+                    BUILD_IN_SOURCE 1
+                    INSTALL_COMMAND ""
+                    )
